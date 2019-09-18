@@ -113,7 +113,7 @@ class _AzListViewState extends State<AzListView> {
     super.dispose();
   }
 
-  void _onIndexBarTouch(IndexBarDetails model) {
+  void onIndexBarTouch(IndexBarDetails model) {
     setState(() {
       _indexBarHint = model.tag;
       _isShowIndexBarHint = model.isTouchDown;
