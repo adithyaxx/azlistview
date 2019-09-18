@@ -86,6 +86,8 @@ class AzListView extends StatefulWidget {
   final IndexHintBuilder indexHintBuilder;
 
   final bool showIndexHint;
+    
+  final void onIndexBarTouch;
 
   @override
   State<StatefulWidget> createState() {
