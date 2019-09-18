@@ -43,7 +43,8 @@ class AzListView extends StatefulWidget {
       this.header,
       this.indexBarBuilder,
       this.indexHintBuilder,
-      this.showIndexHint = true})
+      this.showIndexHint = true
+      this.onIndexBarTouch})
       : assert(itemBuilder != null),
         super(key: key);
 
