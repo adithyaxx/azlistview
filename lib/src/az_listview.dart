@@ -26,6 +26,7 @@ class _Header extends ISuspensionBean {
 
 /// AzListView.
 class AzListView extends StatefulWidget {
+  AzListViewState azListViewState = new AzListViewState();
   AzListView(
       {Key key,
       this.data,
@@ -43,8 +44,7 @@ class AzListView extends StatefulWidget {
       this.header,
       this.indexBarBuilder,
       this.indexHintBuilder,
-      this.showIndexHint = true
-      this.onIndexBarTouch})
+      this.showIndexHint = true})
       : assert(itemBuilder != null),
         super(key: key);
 
@@ -56,7 +56,7 @@ class AzListView extends StatefulWidget {
 
   final ItemWidgetBuilder itemBuilder;
 
-  final ScrollController controller;
+  ScrollController controller;
 
   final ScrollPhysics physics;
 
@@ -86,33 +86,30 @@ class AzListView extends StatefulWidget {
   final IndexHintBuilder indexHintBuilder;
 
   final bool showIndexHint;
-    
-  final void onIndexBarTouch;
 
-  @override
-  State<StatefulWidget> createState() {
-    return new _AzListViewState();
+  void onIndexBarTouch(IndexBarDetails model, scrollController) {
+    controller = scrollController;
+    azListViewState.onIndexBarTouch(model);
   }
+  
+  @override
+  State<StatefulWidget> createState() => azListViewState;
 }
 
-class _AzListViewState extends State<AzListView> {
+class AzListViewState extends State<AzListView> {
   Map<String, int> _suspensionSectionMap = Map();
   List<ISuspensionBean> _cityList = List();
   List<String> _indexTagList = List();
   bool _isShowIndexBarHint = false;
   String _indexBarHint = "";
 
-  ScrollController _scrollController;
-
   @override
   void initState() {
     super.initState();
-    _scrollController = widget.controller ?? ScrollController();
   }
 
   @override
   void dispose() {
-    _scrollController?.dispose();
     super.dispose();
   }
 
@@ -122,9 +119,9 @@ class _AzListViewState extends State<AzListView> {
       _isShowIndexBarHint = model.isTouchDown;
       int offset = _suspensionSectionMap[model.tag];
       if (offset != null) {
-        _scrollController.jumpTo(offset
+        widget.controller.jumpTo(offset
             .toDouble()
-            .clamp(.0, _scrollController.position.maxScrollExtent));
+            .clamp(.0, widget.controller.position.maxScrollExtent));
       }
     });
   }
@@ -160,7 +157,7 @@ class _AzListViewState extends State<AzListView> {
       SuspensionView(
         data: widget.header == null ? _cityList : _cityList.sublist(1),
         contentWidget: ListView.builder(
-            controller: _scrollController,
+            controller: ScrollController(),
             physics: widget.physics,
             shrinkWrap: widget.shrinkWrap,
             padding: widget.padding,
@@ -174,7 +171,7 @@ class _AzListViewState extends State<AzListView> {
               return widget.itemBuilder(context, _cityList[index]);
             }),
         suspensionWidget: widget.suspensionWidget,
-        controller: _scrollController,
+        controller: ScrollController(),
         suspensionHeight: widget.suspensionHeight,
         itemHeight: widget.itemHeight,
         onSusTagChanged: widget.onSusTagChanged,
@@ -189,13 +186,13 @@ class _AzListViewState extends State<AzListView> {
       indexBar = IndexBar(
         data: _indexTagList,
         width: 36,
-        onTouch: _onIndexBarTouch,
+        onTouch: onIndexBarTouch,
       );
     } else {
       indexBar = widget.indexBarBuilder(
         context,
         _indexTagList,
-        _onIndexBarTouch,
+        onIndexBarTouch,
       );
     }
     children.add(Align(
